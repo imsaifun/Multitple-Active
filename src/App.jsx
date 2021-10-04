@@ -1,17 +1,34 @@
-import { useState } from "react";
-import './App.css';
+import { useEffect, useRef, useState } from "react";
+
+let useClickOutside = (handler) => {
+    let domNode = useRef();
+
+    useEffect(() => {
+        let maybeHandler = (event) => {
+            if (!domNode.current.contains(event.target)) {
+                handler();
+            }
+        };
+
+        document.addEventListener("mousedown", maybeHandler);
+
+        return () => {
+            document.removeEventListener("mousedown", maybeHandler);
+        };
+    });
+
+    return domNode;
+};
 
 function App() {
     const [isActive, setIsActive] = useState({
-        status: false,
-        key: "",
+        status: true,
     });
 
     const handleToggle = (key) => {
-        if (isActive.key === key) {
+        if (isActive === key) {
             setIsActive({
                 status: false,
-                key: "",
             });
         } else {
             setIsActive({
@@ -31,17 +48,28 @@ function App() {
             name: "Mark",
         },
     ];
-  return (
-    <>
-      <ul>
-            {data.map((item, i) => (
-                <li className={isActive.key == i ? "active" : ""} key={i}>
-                    <a onClick={() => handleToggle(i)}>{item.name}</a>
-                </li>
-            ))}
-        </ul>
-    </>
-  );
+
+    let domNode = useClickOutside(() => {
+        setIsActive({
+            status: false,
+        });
+    });
+
+    return (
+        <>
+            <ul>
+                {data.map((item, i) => (
+                    <li
+                        className={isActive.key == i ? "active" : ""}
+                        key={i}
+                        ref={domNode}
+                    >
+                        <a onClick={() => handleToggle(i)}>{item.name}</a>
+                    </li>
+                ))}
+            </ul>
+        </>
+    );
 }
 
 export default App;
