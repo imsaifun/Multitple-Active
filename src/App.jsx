@@ -22,11 +22,12 @@ let useClickOutside = (handler) => {
 
 function App() {
     const [isActive, setIsActive] = useState({
-        status: true,
+        status: false,
+        key: "",
     });
 
     const handleToggle = (key) => {
-        if (isActive === key) {
+        if (isActive.key === key) {
             setIsActive({
                 status: false,
             });
@@ -37,6 +38,12 @@ function App() {
             });
         }
     };
+
+    let domNode = useClickOutside(() => {
+        setIsActive({
+            status: false,
+        });
+    });
 
     const data = [
         {
@@ -49,21 +56,12 @@ function App() {
         },
     ];
 
-    let domNode = useClickOutside(() => {
-        setIsActive({
-            status: false,
-        });
-    });
 
     return (
         <>
-            <ul>
+            <ul ref={domNode}>
                 {data.map((item, i) => (
-                    <li
-                        className={isActive.key == i ? "active" : ""}
-                        key={i}
-                        ref={domNode}
-                    >
+                    <li className={isActive.key == i ? "active" : ""} key={i}>
                         <a onClick={() => handleToggle(i)}>{item.name}</a>
                     </li>
                 ))}
